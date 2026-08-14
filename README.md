@@ -19,6 +19,12 @@
 
 DeepSeek Harness Desktop packages the official [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) web experience into a self-contained Electron app. Users install the native package, launch the app, and start working without installing Node.js or running terminal commands.
 
+## Preview
+
+<p align="center">
+  <img src="desktop/build/home-en.webp" width="960" alt="DeepSeek Harness Desktop main interface">
+</p>
+
 ## Highlights
 
 - **Ready to install** — Node.js, the Harness runtime, and required dependencies are bundled in the app.

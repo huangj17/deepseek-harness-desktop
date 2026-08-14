@@ -19,6 +19,12 @@
 
 DeepSeek Harness Desktop 将官方 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) Web 体验封装成一个自包含的 Electron 应用。用户只需安装对应系统的安装包并打开应用，无需另外安装 Node.js，也无需在终端中执行命令。
 
+## 界面预览
+
+<p align="center">
+  <img src="desktop/build/home-zh.webp" width="960" alt="DeepSeek Harness Desktop 主界面">
+</p>
+
 ## 主要特性
 
 - **下载安装即用**：应用内置 Node.js、Harness 运行时及所需依赖。
