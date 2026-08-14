@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="desktop/build/icon.png" width="128" alt="DeepSeek Harness 应用图标">
-  <h1>DeepSeek Harness</h1>
+  <img src="desktop/build/icon.png" width="128" alt="DeepSeek Harness Desktop 应用图标">
+  <h1>DeepSeek Harness Desktop</h1>
   <p>一个开箱即用的非官方 DeepSeek Harness macOS 与 Windows 桌面封装。</p>
   <p>
     <a href="README.md">English</a> · <strong>简体中文</strong>
@@ -16,7 +16,7 @@
 > [!IMPORTANT]
 > 这是一个非官方社区项目，与 DeepSeek 没有隶属或官方背书关系。DeepSeek Harness 及相关商标归各自权利人所有。
 
-DeepSeek Harness 将官方 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) Web 体验封装成一个自包含的 Electron 应用。用户只需安装对应系统的安装包并打开应用，无需另外安装 Node.js，也无需在终端中执行命令。
+DeepSeek Harness Desktop 将官方 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) Web 体验封装成一个自包含的 Electron 应用。用户只需安装对应系统的安装包并打开应用，无需另外安装 Node.js，也无需在终端中执行命令。
 
 ## 主要特性
 

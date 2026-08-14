@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="desktop/build/icon.png" width="128" alt="DeepSeek Harness app icon">
-  <h1>DeepSeek Harness</h1>
+  <img src="desktop/build/icon.png" width="128" alt="DeepSeek Harness Desktop app icon">
+  <h1>DeepSeek Harness Desktop</h1>
   <p>An unofficial, ready-to-use macOS and Windows desktop wrapper for DeepSeek Harness.</p>
   <p>
     <strong>English</strong> · <a href="README.zh-CN.md">简体中文</a>
@@ -16,7 +16,7 @@
 > [!IMPORTANT]
 > This is an unofficial community project and is not affiliated with or endorsed by DeepSeek. DeepSeek Harness and its trademarks belong to their respective owners.
 
-DeepSeek Harness packages the official [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) web experience into a self-contained Electron app. Users install the native package, launch the app, and start working without installing Node.js or running terminal commands.
+DeepSeek Harness Desktop packages the official [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) web experience into a self-contained Electron app. Users install the native package, launch the app, and start working without installing Node.js or running terminal commands.
 
 ## Highlights
 

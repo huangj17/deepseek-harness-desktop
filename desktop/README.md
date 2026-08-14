@@ -1,6 +1,6 @@
-# DeepSeek Harness
+# DeepSeek Harness Desktop
 
-这是 DeepSeek Harness 的免命令行 macOS 与 Windows 桌面封装。安装后打开应用，它会自动启动随安装包附带的 Harness 服务，并在桌面窗口中打开官方 Web 界面。
+这是 DeepSeek Harness Desktop：DeepSeek Harness 的免命令行 macOS 与 Windows 桌面封装。安装后打开应用，它会自动启动随安装包附带的 Harness 服务，并在桌面窗口中打开官方 Web 界面。
 
 ## 使用
 
