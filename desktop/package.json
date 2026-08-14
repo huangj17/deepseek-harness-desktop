@@ -1,0 +1,129 @@
+{
+  "name": "deepseek-harness-desktop",
+  "version": "0.2.6",
+  "description": "A self-contained desktop launcher for DeepSeek Harness",
+  "author": "DeepSeek Harness",
+  "private": true,
+  "type": "module",
+  "main": "src/main.mjs",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "electron .",
+    "check": "node --check src/main.mjs && node --check src/harness-updater.mjs && node scripts/check-package.mjs && node scripts/test-updater.mjs",
+    "smoke:runtime": "node scripts/smoke-runtime.mjs",
+    "smoke:packaged": "node scripts/smoke-packaged-runtime.mjs",
+    "smoke:updater": "node scripts/smoke-updater.mjs",
+    "dist:dir": "electron-builder --mac dir --arm64",
+    "dist:mac": "electron-builder --mac dmg --arm64",
+    "dist:win": "electron-builder --win nsis --x64"
+  },
+  "dependencies": {
+    "@deepseek-ai/cordis-plugin-group": "1.0.1",
+    "@deepseek-ai/dsh": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-anonymous-user-id": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-atomic-write": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-bash-local": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-code-runtime": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-compaction": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-fs": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-invariants": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-output-retention": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-sandbox": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-scope": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-session-telemetry": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-session-title-llm": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-shell": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-spill": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-subagent-in-process-driver": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-subprocess": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-timeout": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-workflow": "0.1.0-rc.6",
+    "npm": "11.11.0",
+    "semver": "7.7.2"
+  },
+  "devDependencies": {
+    "electron": "43.4.0",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "local.deepseek.harness.desktop",
+    "productName": "DeepSeek Harness",
+    "artifactName": "DeepSeek-Harness-${version}-${arch}.${ext}",
+    "asar": false,
+    "electronDist": "node_modules/electron/dist",
+    "npmRebuild": false,
+    "files": [
+      "src/**/*",
+      "package.json",
+      "node_modules/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../upstream/LICENSE",
+        "to": "legal/DEEPSEEK-HARNESS-LICENSE.txt"
+      },
+      {
+        "from": "../upstream/THIRD_PARTY_NOTICES.md",
+        "to": "legal/DEEPSEEK-HARNESS-THIRD-PARTY-NOTICES.md"
+      }
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "icon": "build/icon.png",
+      "identity": "-",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64"
+          ]
+        }
+      ]
+    },
+    "win": {
+      "icon": "build/icon.png",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "DeepSeek Harness"
+    },
+    "dmg": {
+      "title": "DeepSeek Harness",
+      "backgroundColor": "#f5f7fb",
+      "window": {
+        "width": 600,
+        "height": 430
+      },
+      "contents": [
+        {
+          "x": 160,
+          "y": 205,
+          "type": "file"
+        },
+        {
+          "x": 440,
+          "y": 205,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    }
+  }
+}

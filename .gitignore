@@ -1,0 +1,25 @@
+.DS_Store
+Thumbs.db
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+.npmrc
+*.log
+
+# Dependencies and build output
+desktop/node_modules/
+desktop/dist/
+desktop/build/icon.iconset/
+desktop/build/icon.svg.png
+
+# Local runtime data
+desktop/harness-home/
+desktop/logs/
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
