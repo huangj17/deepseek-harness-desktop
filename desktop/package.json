@@ -2,6 +2,8 @@
   "name": "deepseek-harness-desktop",
   "version": "0.2.7",
   "description": "A self-contained desktop launcher for DeepSeek Harness",
+  "homepage": "https://github.com/huangj17/deepseek-harness-desktop",
+  "desktopName": "deepseek-harness.desktop",
   "author": "DeepSeek Harness",
   "private": true,
   "type": "module",
@@ -98,9 +100,16 @@
         "deb"
       ],
       "executableName": "deepseek-harness",
+      "syncDesktopName": true,
       "maintainer": "huangj17 <huangj17@users.noreply.github.com>",
       "vendor": "DeepSeek Harness Desktop contributors",
       "synopsis": "Ready-to-use desktop wrapper for DeepSeek Harness"
+    },
+    "appImage": {
+      "artifactName": "DeepSeek-Harness-${version}-x64.${ext}"
+    },
+    "deb": {
+      "artifactName": "DeepSeek-Harness-${version}-x64.${ext}"
     },
     "nsis": {
       "oneClick": false,
