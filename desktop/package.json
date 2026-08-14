@@ -52,7 +52,6 @@
     "productName": "DeepSeek Harness",
     "artifactName": "DeepSeek-Harness-${version}-${arch}.${ext}",
     "asar": false,
-    "electronDist": "node_modules/electron/dist",
     "npmRebuild": false,
     "files": [
       "src/**/*",
