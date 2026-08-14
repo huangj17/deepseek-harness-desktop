@@ -1,22 +1,49 @@
 import { spawn } from 'node:child_process'
-import { mkdtemp, rm } from 'node:fs/promises'
+import { access, mkdtemp, rm } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 
 const desktopDirectory = dirname(dirname(fileURLToPath(import.meta.url)))
-if (process.platform !== 'darwin' && process.platform !== 'win32') {
+
+const platformLayout = {
+  darwin: {
+    appDirectories: process.arch === 'arm64' ? ['mac-arm64', 'mac'] : ['mac', 'mac-x64'],
+    appName: 'DeepSeek Harness.app',
+    resources: ['Contents', 'Resources', 'app'],
+    executable: ['Contents', 'MacOS', 'DeepSeek Harness'],
+  },
+  win32: {
+    appDirectories: ['win-unpacked'],
+    resources: ['resources', 'app'],
+    executable: ['DeepSeek Harness.exe'],
+  },
+  linux: {
+    appDirectories: ['linux-unpacked'],
+    resources: ['resources', 'app'],
+    executable: ['deepseek-harness'],
+  },
+}[process.platform]
+
+if (platformLayout === undefined) {
   throw new Error(`Packaged runtime smoke test is unsupported on ${process.platform}.`)
 }
-const appDirectory = process.platform === 'darwin'
-  ? join(desktopDirectory, 'dist', 'mac-arm64', 'DeepSeek Harness.app')
-  : join(desktopDirectory, 'dist', 'win-unpacked')
-const resourcesDirectory = process.platform === 'darwin'
-  ? join(appDirectory, 'Contents', 'Resources', 'app')
-  : join(appDirectory, 'resources', 'app')
-const electronBinary = process.platform === 'darwin'
-  ? join(appDirectory, 'Contents', 'MacOS', 'DeepSeek Harness')
-  : join(appDirectory, 'DeepSeek Harness.exe')
+
+let appDirectory
+for (const directory of platformLayout.appDirectories) {
+  const candidate = join(desktopDirectory, 'dist', directory, platformLayout.appName ?? '')
+  try {
+    await access(candidate)
+    appDirectory = candidate
+    break
+  } catch {}
+}
+if (appDirectory === undefined) {
+  throw new Error(`Cannot find packaged ${process.platform}/${process.arch} application in desktop/dist.`)
+}
+
+const resourcesDirectory = join(appDirectory, ...platformLayout.resources)
+const electronBinary = join(appDirectory, ...platformLayout.executable)
 const dshBin = join(resourcesDirectory, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
 const dshHome = await mkdtemp(join(tmpdir(), 'deepseek-harness-packaged-smoke-'))
 

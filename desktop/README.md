@@ -1,10 +1,10 @@
 # DeepSeek Harness Desktop
 
-这是 DeepSeek Harness Desktop：DeepSeek Harness 的免命令行 macOS 与 Windows 桌面封装。安装后打开应用，它会自动启动随安装包附带的 Harness 服务，并在桌面窗口中打开官方 Web 界面。
+这是 DeepSeek Harness Desktop：DeepSeek Harness 的免命令行 macOS、Windows 与 Linux 桌面封装。安装后打开应用，它会自动启动随安装包附带的 Harness 服务，并在桌面窗口中打开官方 Web 界面。
 
 ## 使用
 
-1. macOS 打开 DMG 并拖入“应用程序”；Windows 运行 EXE 安装程序。
+1. macOS 打开 DMG 并拖入“应用程序”；Windows 使用 EXE 安装程序或解压便携 ZIP；Linux 使用 AppImage 或 deb 包。
 2. 打开 `DeepSeek Harness`。
 3. 首次进入时，按界面提示填写 DeepSeek API Key 并选择工作目录。
 
@@ -28,18 +28,30 @@ npm start
 构建 Apple 芯片版 DMG：
 
 ```sh
-npm run dist:mac
+npm run dist:mac:arm64
 ```
 
-构建 Windows x64 安装程序：
+构建 Intel 版 DMG：
+
+```sh
+npm run dist:mac:x64
+```
+
+构建 Windows x64 安装程序和便携 ZIP：
 
 ```sh
 npm run dist:win
 ```
 
+构建 Linux x64 AppImage 和 deb：
+
+```sh
+npm run dist:linux
+```
+
 ## 版本
 
-- Desktop wrapper: 0.2.6
+- Desktop wrapper: 0.2.7
 - DeepSeek Harness: 0.1.0-rc.6
 - Electron: 43.4.0
 

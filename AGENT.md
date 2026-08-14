@@ -65,11 +65,14 @@ npm run smoke:packaged
 1. 更新 `desktop/package.json` 和 `desktop/package-lock.json` 中的桌面版本号。
 2. 更新 `desktop/README.md`、`README.md` 和 `README.zh-CN.md` 中记录的版本。
 3. 依次通过 `check`、`smoke:runtime` 和 `smoke:updater`。
-4. 构建 Apple 芯片版安装包：
+4. 在对应的原生系统上构建全部发行包：
 
    ```sh
    cd desktop
-   npm run dist:mac
+   npm run dist:mac:arm64  # macOS Apple 芯片 DMG
+   npm run dist:mac:x64    # macOS Intel DMG
+   npm run dist:win        # Windows x64 EXE 与便携 ZIP
+   npm run dist:linux      # Linux x64 AppImage 与 deb
    ```
 
 5. 确认以下内容存在于应用包内：
@@ -79,8 +82,8 @@ npm run smoke:packaged
    - `node_modules/semver/`
 
 6. 构建完成后必须执行 `npm run smoke:packaged`，确认最终应用包能启动 Harness 并返回 HTTP 200。
-7. 使用 `codesign --verify --deep --strict` 检查应用，并使用 `hdiutil verify` 验证 DMG。
-8. 安装包位于 `desktop/dist/`。不要覆盖不同版本的历史安装包。
+7. macOS 使用 `codesign --verify --deep --strict` 检查应用，并使用 `hdiutil verify` 验证 DMG；其他平台由原生 GitHub runner 构建并执行相同的打包运行时冒烟测试。
+8. 软件包位于 `desktop/dist/`。发布应包含 Apple 芯片与 Intel DMG、Windows 安装 EXE 与便携 ZIP、Linux AppImage 与 deb，以及 `SHA256SUMS.txt`。不要覆盖不同版本的历史安装包。
 
 ## 版本策略
 

@@ -10,8 +10,22 @@ permissions:
 
 jobs:
   macos:
-    name: macOS Apple Silicon
-    runs-on: macos-14
+    name: macOS ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Apple Silicon
+            runner: macos-15
+            script: dist:mac:arm64
+            artifact: deepseek-harness-macos-arm64
+            installer: desktop/dist/*-arm64.dmg
+          - name: Intel
+            runner: macos-15-intel
+            script: dist:mac:x64
+            artifact: deepseek-harness-macos-x64
+            installer: desktop/dist/*-x64.dmg
+    runs-on: ${{ matrix.runner }}
     steps:
       - name: Check out source
         uses: actions/checkout@v4
@@ -31,15 +45,15 @@ jobs:
         run: npm run check
       - name: Build DMG
         working-directory: desktop
-        run: npm run dist:mac
+        run: npm run ${{ matrix.script }}
       - name: Smoke-test packaged runtime
         working-directory: desktop
         run: npm run smoke:packaged
       - name: Upload macOS installer
         uses: actions/upload-artifact@v4
         with:
-          name: deepseek-harness-macos-arm64
-          path: desktop/dist/*.dmg
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.installer }}
           if-no-files-found: error
 
   windows:
@@ -62,22 +76,59 @@ jobs:
       - name: Check source
         working-directory: desktop
         run: npm run check
-      - name: Build Windows installer
+      - name: Build Windows installer and portable ZIP
         working-directory: desktop
         run: npm run dist:win
       - name: Smoke-test packaged runtime
         working-directory: desktop
         run: npm run smoke:packaged
-      - name: Upload Windows installer
+      - name: Upload Windows packages
         uses: actions/upload-artifact@v4
         with:
           name: deepseek-harness-windows-x64
-          path: desktop/dist/*.exe
+          path: |
+            desktop/dist/*.exe
+            desktop/dist/*.zip
+          if-no-files-found: error
+
+  linux:
+    name: Linux x64
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+      - name: Install dependencies
+        working-directory: desktop
+        run: npm ci
+      - name: Check source
+        working-directory: desktop
+        run: npm run check
+      - name: Build AppImage and deb packages
+        working-directory: desktop
+        run: npm run dist:linux
+      - name: Smoke-test packaged runtime
+        working-directory: desktop
+        run: npm run smoke:packaged
+      - name: Upload Linux packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: deepseek-harness-linux-x64
+          path: |
+            desktop/dist/*.AppImage
+            desktop/dist/*.deb
           if-no-files-found: error
 
   release:
     name: Publish GitHub release
-    needs: [macos, windows]
+    needs: [macos, windows, linux]
     runs-on: ubuntu-latest
     steps:
       - name: Download installers
@@ -94,4 +145,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-        run: gh release create "${GITHUB_REF_NAME}" ./* --verify-tag --generate-notes --title "DeepSeek Harness ${GITHUB_REF_NAME#v}"
+        run: gh release create "${GITHUB_REF_NAME}" ./* --verify-tag --generate-notes --title "DeepSeek Harness Desktop ${GITHUB_REF_NAME#v}"

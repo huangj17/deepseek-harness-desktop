@@ -1,15 +1,16 @@
 <div align="center">
   <img src="desktop/build/icon.png" width="128" alt="DeepSeek Harness Desktop 应用图标">
   <h1>DeepSeek Harness Desktop</h1>
-  <p>一个开箱即用的非官方 DeepSeek Harness macOS 与 Windows 桌面封装。</p>
+  <p>一个开箱即用的非官方 DeepSeek Harness macOS、Windows 与 Linux 桌面封装。</p>
   <p>
     <a href="README.md">English</a> · <strong>简体中文</strong>
   </p>
   <p>
     <a href="https://github.com/huangj17/deepseek-harness-desktop/releases/latest"><img alt="最新版本" src="https://img.shields.io/github/v/release/huangj17/deepseek-harness-desktop?display_name=tag&sort=semver"></a>
     <a href="LICENSE"><img alt="MIT 许可证" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
-    <img alt="macOS Apple 芯片" src="https://img.shields.io/badge/macOS-Apple%20Silicon-111111?logo=apple">
+    <img alt="macOS Apple 芯片与 Intel" src="https://img.shields.io/badge/macOS-Apple%20Silicon%20%7C%20Intel-111111?logo=apple">
     <img alt="Windows x64" src="https://img.shields.io/badge/Windows-x64-0078D4?logo=windows11">
+    <img alt="Linux x64" src="https://img.shields.io/badge/Linux-x64-FCC624?logo=linux&logoColor=111111">
   </p>
 </div>
 
@@ -22,20 +23,33 @@ DeepSeek Harness Desktop 将官方 [DeepSeek Harness](https://github.com/deepsee
 
 - **下载安装即用**：应用内置 Node.js、Harness 运行时及所需依赖。
 - **官方 Harness 界面**：直接启动官方本地 Web UI，不维护独立的前端分支。
-- **本地优先**：Harness 服务仅监听 `127.0.0.1`，应用数据保存在 macOS 用户数据目录。
+- **本地优先**：Harness 服务仅监听 `127.0.0.1`，应用数据保存在操作系统的用户数据目录。
 - **运行时更新**：启动后及每 6 小时检查官方 `@deepseek-ai/dsh` npm 版本，验证成功后启用，失败时自动回退。
-- **原生桌面外壳**：macOS 提供独立标题栏、拖动区和原生红黄绿按钮；Windows 提供标准系统窗口和安装程序。
+- **原生桌面外壳**：macOS 提供独立标题栏、拖动区和原生红黄绿按钮；Windows 使用标准系统窗口；Linux 提供原生软件包。
 - **官方源码同步**：官方源码作为 `upstream` Git 子模块保留，可与桌面客户端独立更新。
 
 ## 下载与安装
 
-1. 从 [GitHub Releases](https://github.com/huangj17/deepseek-harness-desktop/releases/latest) 下载对应系统的安装包：
-   - macOS Apple 芯片：`DeepSeek-Harness-<version>-arm64.dmg`
-   - Windows x64：`DeepSeek-Harness-<version>-x64.exe`
-2. macOS 打开 DMG 并将 **DeepSeek Harness** 拖入“应用程序”；Windows 运行安装程序并按提示完成安装。
-3. 打开 **DeepSeek Harness**，按照应用内提示配置 DeepSeek API Key 并选择工作目录。
+请选择对应系统的软件包。以下链接可直接下载 **0.2.7**：
 
-当前桌面客户端版本：**0.2.6**<br>
+| 系统 | 架构 | 软件包 | 下载 |
+| --- | --- | --- | --- |
+| macOS | Apple 芯片 | DMG | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.7/DeepSeek-Harness-0.2.7-arm64.dmg) |
+| macOS | Intel | DMG | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.7/DeepSeek-Harness-0.2.7-x64.dmg) |
+| Windows | x64 | 安装程序 | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.7/DeepSeek-Harness-0.2.7-x64.exe) |
+| Windows | x64 | 便携 ZIP | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.7/DeepSeek-Harness-0.2.7-x64.zip) |
+| Linux | x64 | AppImage | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.7/DeepSeek-Harness-0.2.7-x64.AppImage) |
+| Debian / Ubuntu | x64 | deb | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.7/DeepSeek-Harness-0.2.7-x64.deb) |
+
+[查看全部发布文件及 SHA-256 校验值](https://github.com/huangj17/deepseek-harness-desktop/releases/tag/v0.2.7)。
+
+- **macOS**：打开 DMG，并将 **DeepSeek Harness** 拖入“应用程序”。
+- **Windows 安装版**：运行 EXE 并按提示安装；便携版解压 ZIP 后即可直接启动。
+- **Linux AppImage**：为文件添加可执行权限后启动；Debian 或 Ubuntu 用户也可以使用系统软件安装器打开 deb 包。
+
+安装完成后，打开 **DeepSeek Harness**，按照应用内提示配置 DeepSeek API Key 并选择工作目录。
+
+当前桌面客户端版本：**0.2.7**<br>
 安装包内置 Harness 版本：**0.1.0-rc.6**
 
 > [!NOTE]
@@ -70,7 +84,7 @@ Electron 客户端版本与 Harness 运行时版本分别管理。更新 Harness
 
 ### 环境要求
 
-- Apple 芯片 Mac 或 Windows x64 电脑
+- Apple 芯片或 Intel Mac、Windows x64 或 Linux x64 电脑
 - Node.js 24 或更高版本
 - npm
 - Xcode Command Line Tools
@@ -88,13 +102,19 @@ npm run check
 
 ```sh
 # Apple 芯片 macOS
-npm run dist:mac
+npm run dist:mac:arm64
 
-# Windows x64
+# Intel macOS
+npm run dist:mac:x64
+
+# Windows x64 安装程序与便携 ZIP
 npm run dist:win
+
+# Linux x64 AppImage 与 deb
+npm run dist:linux
 ```
 
-构建完成的安装包位于 `desktop/dist/`。带版本标签的发布会在 GitHub 原生 macOS 和 Windows 构建机上自动打包、冒烟测试、生成校验值并发布。
+构建完成的软件包位于 `desktop/dist/`。带版本标签的发布会在 GitHub 原生 macOS、Windows 和 Linux 构建机上自动打包、冒烟测试、生成校验值并发布。
 
 常用验证命令：
 

@@ -1,15 +1,16 @@
 <div align="center">
   <img src="desktop/build/icon.png" width="128" alt="DeepSeek Harness Desktop app icon">
   <h1>DeepSeek Harness Desktop</h1>
-  <p>An unofficial, ready-to-use macOS and Windows desktop wrapper for DeepSeek Harness.</p>
+  <p>An unofficial, ready-to-use macOS, Windows, and Linux desktop wrapper for DeepSeek Harness.</p>
   <p>
     <strong>English</strong> · <a href="README.zh-CN.md">简体中文</a>
   </p>
   <p>
     <a href="https://github.com/huangj17/deepseek-harness-desktop/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/huangj17/deepseek-harness-desktop?display_name=tag&sort=semver"></a>
     <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
-    <img alt="macOS Apple Silicon" src="https://img.shields.io/badge/macOS-Apple%20Silicon-111111?logo=apple">
+    <img alt="macOS Universal" src="https://img.shields.io/badge/macOS-Apple%20Silicon%20%7C%20Intel-111111?logo=apple">
     <img alt="Windows x64" src="https://img.shields.io/badge/Windows-x64-0078D4?logo=windows11">
+    <img alt="Linux x64" src="https://img.shields.io/badge/Linux-x64-FCC624?logo=linux&logoColor=111111">
   </p>
 </div>
 
@@ -22,20 +23,33 @@ DeepSeek Harness Desktop packages the official [DeepSeek Harness](https://github
 
 - **Ready to install** — Node.js, the Harness runtime, and required dependencies are bundled in the app.
 - **Official Harness UI** — the app launches the official local web interface rather than maintaining a separate frontend fork.
-- **Local by default** — the Harness service listens on `127.0.0.1`; application data remains in the macOS user data directory.
+- **Local by default** — the Harness service listens on `127.0.0.1`; application data remains in the operating system's user data directory.
 - **Runtime updates** — checks the official `@deepseek-ai/dsh` npm release after launch and every six hours, with validation and automatic fallback.
-- **Native desktop shell** — polished macOS title bar and traffic-light controls, plus a standard Windows installer and system window frame.
+- **Native desktop shell** — polished macOS title bar and traffic-light controls, a standard Windows system frame, and native Linux packages.
 - **Upstream tracking** — the official source repository is kept as the `upstream` Git submodule and can be updated independently.
 
 ## Download and install
 
-1. Download the package for your system from [GitHub Releases](https://github.com/huangj17/deepseek-harness-desktop/releases/latest):
-   - macOS Apple Silicon: `DeepSeek-Harness-<version>-arm64.dmg`
-   - Windows x64: `DeepSeek-Harness-<version>-x64.exe`
-2. On macOS, open the DMG and drag **DeepSeek Harness** into **Applications**. On Windows, run the installer and follow its prompts.
-3. Launch **DeepSeek Harness** and follow the in-app prompts to configure your DeepSeek API key and choose a workspace.
+Choose the package for your system. These links download version **0.2.7** directly:
 
-Current desktop release: **0.2.6**<br>
+| System | Architecture | Package | Download |
+| --- | --- | --- | --- |
+| macOS | Apple Silicon | DMG | [Download](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.7/DeepSeek-Harness-0.2.7-arm64.dmg) |
+| macOS | Intel | DMG | [Download](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.7/DeepSeek-Harness-0.2.7-x64.dmg) |
+| Windows | x64 | Setup installer | [Download](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.7/DeepSeek-Harness-0.2.7-x64.exe) |
+| Windows | x64 | Portable ZIP | [Download](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.7/DeepSeek-Harness-0.2.7-x64.zip) |
+| Linux | x64 | AppImage | [Download](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.7/DeepSeek-Harness-0.2.7-x64.AppImage) |
+| Debian / Ubuntu | x64 | deb | [Download](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.7/DeepSeek-Harness-0.2.7-x64.deb) |
+
+[View all release files and SHA-256 checksums](https://github.com/huangj17/deepseek-harness-desktop/releases/tag/v0.2.7).
+
+- **macOS:** open the DMG and drag **DeepSeek Harness** into **Applications**.
+- **Windows installer:** run the EXE and follow its prompts. For the portable build, extract the ZIP and launch the app directly.
+- **Linux AppImage:** mark the file as executable, then launch it. On Debian or Ubuntu, install the deb package with your software installer.
+
+After installation, launch **DeepSeek Harness** and follow the in-app prompts to configure your DeepSeek API key and choose a workspace.
+
+Current desktop release: **0.2.7**<br>
 Bundled Harness release: **0.1.0-rc.6**
 
 > [!NOTE]
@@ -70,7 +84,7 @@ The Electron desktop version and the Harness runtime version are managed separat
 
 ### Requirements
 
-- Apple Silicon Mac or Windows x64 machine
+- Apple Silicon or Intel Mac, Windows x64, or Linux x64 machine
 - Node.js 24 or later
 - npm
 - Xcode Command Line Tools
@@ -88,13 +102,19 @@ Build on the target operating system:
 
 ```sh
 # Apple Silicon macOS
-npm run dist:mac
+npm run dist:mac:arm64
 
-# Windows x64
+# Intel macOS
+npm run dist:mac:x64
+
+# Windows x64 installer and portable ZIP
 npm run dist:win
+
+# Linux x64 AppImage and deb
+npm run dist:linux
 ```
 
-Installers are generated in `desktop/dist/`. Tagged releases are built on native macOS and Windows GitHub runners, smoke-tested, checksummed, and published automatically.
+Packages are generated in `desktop/dist/`. Tagged releases are built on native macOS, Windows, and Linux GitHub runners, smoke-tested, checksummed, and published automatically.
 
 Useful verification commands:
 

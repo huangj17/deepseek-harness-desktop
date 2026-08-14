@@ -1,6 +1,6 @@
 {
   "name": "deepseek-harness-desktop",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "A self-contained desktop launcher for DeepSeek Harness",
   "author": "DeepSeek Harness",
   "private": true,
@@ -17,7 +17,10 @@
     "smoke:updater": "node scripts/smoke-updater.mjs",
     "dist:dir": "electron-builder --mac dir --arm64",
     "dist:mac": "electron-builder --mac dmg --arm64",
-    "dist:win": "electron-builder --win nsis --x64"
+    "dist:mac:arm64": "electron-builder --mac dmg --arm64",
+    "dist:mac:x64": "electron-builder --mac dmg --x64",
+    "dist:win": "electron-builder --win nsis zip --x64",
+    "dist:linux": "electron-builder --linux AppImage deb --x64"
   },
   "dependencies": {
     "@deepseek-ai/cordis-plugin-group": "1.0.1",
@@ -77,24 +80,27 @@
       "icon": "build/icon.png",
       "identity": "-",
       "target": [
-        {
-          "target": "dmg",
-          "arch": [
-            "arm64"
-          ]
-        }
+        "dmg"
       ]
     },
     "win": {
       "icon": "build/icon.png",
       "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        }
+        "nsis",
+        "zip"
       ]
+    },
+    "linux": {
+      "category": "Development",
+      "icon": "build/icons/1024x1024.png",
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "executableName": "deepseek-harness",
+      "maintainer": "huangj17 <huangj17@users.noreply.github.com>",
+      "vendor": "DeepSeek Harness Desktop contributors",
+      "synopsis": "Ready-to-use desktop wrapper for DeepSeek Harness"
     },
     "nsis": {
       "oneClick": false,
