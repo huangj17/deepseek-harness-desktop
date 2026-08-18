@@ -11,6 +11,15 @@ import {
   isNewerHarnessVersion,
   resolveHarnessRuntime,
 } from './harness-updater.mjs'
+import {
+  DESKTOP_RELEASE_PAGE_URL,
+  fetchLatestDesktopRelease,
+  isNewerDesktopVersion,
+  isSkippedDesktopVersion,
+  pickInstallerUrl,
+  readSkippedDesktopVersion,
+  skipDesktopVersion,
+} from './desktop-updater.mjs'
 
 const require = createRequire(import.meta.url)
 const LEGACY_USER_DATA_DIRECTORY = 'DeepSeek Harness Desktop'
@@ -29,6 +38,7 @@ let harnessOrigin
 let mainWindow
 let activeHarnessRuntime
 let updateCheckInProgress = false
+let desktopCheckInProgress = false
 let updateCheckDelay
 let updateCheckInterval
 let quitting = false
@@ -95,6 +105,7 @@ function configureMenu() {
       label: app.name,
       submenu: [
         { role: 'about' },
+        { label: '检查客户端更新…', click: () => void checkForDesktopUpdate({ interactive: true }) },
         { label: '检查 Harness 更新…', click: () => void checkForHarnessUpdate({ interactive: true }) },
         { type: 'separator' },
         { role: 'hide' },
@@ -115,6 +126,7 @@ function configureMenu() {
     {
       label: '帮助',
       submenu: [
+        { label: '检查客户端更新…', click: () => void checkForDesktopUpdate({ interactive: true }) },
         { label: '检查 Harness 更新…', click: () => void checkForHarnessUpdate({ interactive: true }) },
         { type: 'separator' },
         { role: 'about' },
@@ -453,13 +465,83 @@ async function checkForHarnessUpdate({ interactive = false } = {}) {
   }
 }
 
+// 客户端自身的更新只做「发现新版 -> 打开下载链接」：安装包没有 Apple Developer ID
+// 签名，Squirrel 那套静默更新在 macOS 上装不上，三平台统一走手动安装更省事。
+// 返回值表示「发现了新版本」，调度里用它决定要不要再叠一个 Harness 更新弹窗。
+async function checkForDesktopUpdate({ interactive = false } = {}) {
+  if (desktopCheckInProgress || quitting) {
+    if (interactive) {
+      await showMessageBox({ type: 'info', title: '正在检查更新', message: '更新检查已经在进行中，请稍候。', buttons: ['好'] })
+    }
+    return false
+  }
+
+  desktopCheckInProgress = true
+  const currentVersion = app.getVersion()
+  try {
+    const release = await fetchLatestDesktopRelease()
+    if (!isNewerDesktopVersion(release.version, currentVersion)) {
+      if (interactive) {
+        await showMessageBox({
+          type: 'info',
+          title: '客户端更新',
+          message: '当前已经是最新版本。',
+          detail: `已安装：${currentVersion}\n官方最新：${release.version}`,
+          buttons: ['好'],
+        })
+      }
+      return false
+    }
+
+    // 手动检查时无视跳过记录：用户主动问了就该给答案。
+    if (!interactive && isSkippedDesktopVersion(release.version, await readSkippedDesktopVersion(app.getPath('userData')))) {
+      return false
+    }
+
+    const downloadUrl = pickInstallerUrl(release) ?? release.pageUrl ?? DESKTOP_RELEASE_PAGE_URL
+    const choice = await showMessageBox({
+      type: 'info',
+      title: '发现客户端新版本',
+      message: `可以更新到 ${release.version}`,
+      detail: `当前版本：${currentVersion}\n下载完成后请手动安装，安装包会覆盖当前客户端。`,
+      buttons: ['前往下载', '跳过此版本', '稍后'],
+      defaultId: 0,
+      cancelId: 2,
+    })
+    if (choice.response === 0) await shell.openExternal(downloadUrl)
+    if (choice.response === 1) await skipDesktopVersion(app.getPath('userData'), release.version)
+    return true
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    await appendLog(`[${new Date().toISOString()}] desktop update error: ${message}\n`)
+    if (interactive) {
+      await showMessageBox({
+        type: 'error',
+        title: '检查更新失败',
+        message: '暂时无法检查客户端更新。',
+        detail: message,
+        buttons: ['好'],
+      })
+    }
+    return false
+  } finally {
+    desktopCheckInProgress = false
+  }
+}
+
+// 客户端本身要更新时就不再弹 Harness 更新了：新客户端自带更新过的内置 Harness。
+async function runScheduledUpdateChecks() {
+  if (await checkForDesktopUpdate()) return
+  await checkForHarnessUpdate()
+}
+
 function startUpdateSchedule() {
   if (updateCheckDelay !== undefined || updateCheckInterval !== undefined) return
   updateCheckDelay = setTimeout(() => {
     updateCheckDelay = undefined
-    void checkForHarnessUpdate()
+    void runScheduledUpdateChecks()
   }, UPDATE_CHECK_DELAY_MS)
-  updateCheckInterval = setInterval(() => void checkForHarnessUpdate(), UPDATE_CHECK_INTERVAL_MS)
+  updateCheckInterval = setInterval(() => void runScheduledUpdateChecks(), UPDATE_CHECK_INTERVAL_MS)
 }
 
 async function boot() {

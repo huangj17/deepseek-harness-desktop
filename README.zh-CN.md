@@ -31,23 +31,24 @@ DeepSeek Harness Desktop 将官方 [DeepSeek Harness](https://github.com/deepsee
 - **官方 Harness 界面**：直接启动官方本地 Web UI，不维护独立的前端分支。
 - **本地优先**：Harness 服务仅监听 `127.0.0.1`，应用数据保存在操作系统的用户数据目录。
 - **运行时更新**：启动后及每 6 小时检查官方 `@deepseek-ai/dsh` npm 版本，验证成功后启用，失败时自动回退。
+- **客户端更新提醒**：启动后及每 6 小时检查 GitHub 发布页，发现新版可一键前往下载，也可跳过该版本。
 - **原生桌面外壳**：macOS 提供独立标题栏、拖动区和原生红黄绿按钮；Windows 使用标准系统窗口；Linux 提供原生软件包。
 - **官方源码同步**：官方源码作为 `upstream` Git 子模块保留，可与桌面客户端独立更新。
 
 ## 下载与安装
 
-请选择对应系统的软件包。以下链接可直接下载 **0.2.8**：
+请选择对应系统的软件包。以下链接可直接下载 **0.2.9**：
 
 | 系统 | 架构 | 软件包 | 下载 |
 | --- | --- | --- | --- |
-| macOS | Apple 芯片 | DMG | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.8/DeepSeek-Harness-0.2.8-arm64.dmg) |
-| macOS | Intel | DMG | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.8/DeepSeek-Harness-0.2.8-x64.dmg) |
-| Windows | x64 | 安装程序 | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.8/DeepSeek-Harness-0.2.8-x64.exe) |
-| Windows | x64 | 便携 ZIP | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.8/DeepSeek-Harness-0.2.8-x64.zip) |
-| Linux | x64 | AppImage | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.8/DeepSeek-Harness-0.2.8-x64.AppImage) |
-| Debian / Ubuntu | x64 | deb | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.8/DeepSeek-Harness-0.2.8-x64.deb) |
+| macOS | Apple 芯片 | DMG | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.9/DeepSeek-Harness-0.2.9-arm64.dmg) |
+| macOS | Intel | DMG | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.9/DeepSeek-Harness-0.2.9-x64.dmg) |
+| Windows | x64 | 安装程序 | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.9/DeepSeek-Harness-0.2.9-x64.exe) |
+| Windows | x64 | 便携 ZIP | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.9/DeepSeek-Harness-0.2.9-x64.zip) |
+| Linux | x64 | AppImage | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.9/DeepSeek-Harness-0.2.9-x64.AppImage) |
+| Debian / Ubuntu | x64 | deb | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.9/DeepSeek-Harness-0.2.9-x64.deb) |
 
-[查看全部发布文件及 SHA-256 校验值](https://github.com/huangj17/deepseek-harness-desktop/releases/tag/v0.2.8)。
+[查看全部发布文件及 SHA-256 校验值](https://github.com/huangj17/deepseek-harness-desktop/releases/tag/v0.2.9)。
 
 - **macOS**：打开 DMG，并将 **DeepSeek Harness** 拖入“应用程序”。
 - **Windows 安装版**：运行 EXE 并按提示安装；便携版解压 ZIP 后即可直接启动。
@@ -55,7 +56,7 @@ DeepSeek Harness Desktop 将官方 [DeepSeek Harness](https://github.com/deepsee
 
 安装完成后，打开 **DeepSeek Harness**，按照应用内提示配置 DeepSeek API Key 并选择工作目录。
 
-当前桌面客户端版本：**0.2.8**<br>
+当前桌面客户端版本：**0.2.9**<br>
 安装包内置 Harness 版本：**0.1.0-rc.6**
 
 > [!NOTE]
@@ -72,7 +73,7 @@ Electron 主进程
 └── 从官方 npm 发布渠道检查并验证运行时更新
 ```
 
-Electron 客户端版本与 Harness 运行时版本分别管理。更新 Harness 运行时不会替换 Electron 应用，安装包内置版本始终保留为回退版本。
+Electron 客户端版本与 Harness 运行时版本分别管理。更新 Harness 运行时不会替换 Electron 应用，安装包内置版本始终保留为回退版本；客户端自身的更新需要下载新安装包覆盖安装。
 
 ## 项目结构
 
