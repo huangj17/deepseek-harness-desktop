@@ -36,18 +36,18 @@ DeepSeek Harness Desktop 将官方 [DeepSeek Harness](https://github.com/deepsee
 
 ## 下载与安装
 
-请选择对应系统的软件包。以下链接可直接下载 **0.2.7**：
+请选择对应系统的软件包。以下链接可直接下载 **0.2.8**：
 
 | 系统 | 架构 | 软件包 | 下载 |
 | --- | --- | --- | --- |
-| macOS | Apple 芯片 | DMG | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.7/DeepSeek-Harness-0.2.7-arm64.dmg) |
-| macOS | Intel | DMG | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.7/DeepSeek-Harness-0.2.7-x64.dmg) |
-| Windows | x64 | 安装程序 | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.7/DeepSeek-Harness-0.2.7-x64.exe) |
-| Windows | x64 | 便携 ZIP | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.7/DeepSeek-Harness-0.2.7-x64.zip) |
-| Linux | x64 | AppImage | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.7/DeepSeek-Harness-0.2.7-x64.AppImage) |
-| Debian / Ubuntu | x64 | deb | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.7/DeepSeek-Harness-0.2.7-x64.deb) |
+| macOS | Apple 芯片 | DMG | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.8/DeepSeek-Harness-0.2.8-arm64.dmg) |
+| macOS | Intel | DMG | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.8/DeepSeek-Harness-0.2.8-x64.dmg) |
+| Windows | x64 | 安装程序 | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.8/DeepSeek-Harness-0.2.8-x64.exe) |
+| Windows | x64 | 便携 ZIP | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.8/DeepSeek-Harness-0.2.8-x64.zip) |
+| Linux | x64 | AppImage | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.8/DeepSeek-Harness-0.2.8-x64.AppImage) |
+| Debian / Ubuntu | x64 | deb | [直接下载](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.8/DeepSeek-Harness-0.2.8-x64.deb) |
 
-[查看全部发布文件及 SHA-256 校验值](https://github.com/huangj17/deepseek-harness-desktop/releases/tag/v0.2.7)。
+[查看全部发布文件及 SHA-256 校验值](https://github.com/huangj17/deepseek-harness-desktop/releases/tag/v0.2.8)。
 
 - **macOS**：打开 DMG，并将 **DeepSeek Harness** 拖入“应用程序”。
 - **Windows 安装版**：运行 EXE 并按提示安装；便携版解压 ZIP 后即可直接启动。
@@ -55,7 +55,7 @@ DeepSeek Harness Desktop 将官方 [DeepSeek Harness](https://github.com/deepsee
 
 安装完成后，打开 **DeepSeek Harness**，按照应用内提示配置 DeepSeek API Key 并选择工作目录。
 
-当前桌面客户端版本：**0.2.7**<br>
+当前桌面客户端版本：**0.2.8**<br>
 安装包内置 Harness 版本：**0.1.0-rc.6**
 
 > [!NOTE]
