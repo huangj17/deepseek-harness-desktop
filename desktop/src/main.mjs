@@ -34,10 +34,19 @@ let updateCheckInterval
 let quitting = false
 let shutdownComplete = false
 
-function loadingPage(message = '正在启动本地 Agent 服务…') {
+// compact 用于更新进度这类小窗：不画卡片、不画 macOS 假标题栏（小窗有真的标题栏，
+// 两层叠在一起就是「卡中卡」），也不让内容溢出成滚动条。
+function loadingPage(message = '正在启动本地 Agent 服务…', { compact = false } = {}) {
   const safeMessage = message.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
-  const macTitlebar = process.platform === 'darwin'
+  const macTitlebar = !compact && process.platform === 'darwin'
     ? '<div class="titlebar-backdrop" aria-hidden="true"></div><div class="titlebar-drag-region" aria-hidden="true"></div>'
+    : ''
+  const compactStyle = compact
+    ? `
+    body { height: 100vh; min-height: 0; overflow: hidden; }
+    main { width: 100%; padding: 28px 24px; }
+    .mark { width: 58px; height: 58px; margin-bottom: 18px; border-radius: 17px; font-size: 29px; }
+    h1 { font-size: 22px; }`
     : ''
   return `<!doctype html>
 <html lang="zh-CN">
@@ -50,7 +59,8 @@ function loadingPage(message = '正在启动本地 Agent 服务…') {
     :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     * { box-sizing: border-box; }
     body { margin: 0; min-height: 100vh; display: grid; place-items: center; color: #172033; background: radial-gradient(circle at 50% 20%, #eaf1ff 0, #f7f9fc 52%, #edf1f7 100%); }
-    main { width: min(460px, calc(100vw - 48px)); padding: 44px; text-align: center; background: rgba(255,255,255,.86); border: 1px solid rgba(125,145,180,.2); border-radius: 24px; box-shadow: 0 22px 70px rgba(30,50,90,.13); }
+    main { width: min(460px, calc(100vw - 48px)); padding: 44px; text-align: center; }
+    .card { background: rgba(255,255,255,.86); border: 1px solid rgba(125,145,180,.2); border-radius: 24px; box-shadow: 0 22px 70px rgba(30,50,90,.13); }
     .mark { width: 68px; height: 68px; margin: 0 auto 22px; display: grid; place-items: center; color: white; background: linear-gradient(145deg, #3d73ff, #1745c8); border-radius: 20px; box-shadow: 0 12px 30px rgba(44,99,235,.32); font-size: 34px; font-weight: 750; }
     h1 { margin: 0 0 12px; font-size: 25px; letter-spacing: -.4px; }
     p { margin: 0; color: #62708a; font-size: 14px; line-height: 1.6; }
@@ -60,14 +70,14 @@ function loadingPage(message = '正在启动本地 Agent 服务…') {
     .titlebar-drag-region { position: fixed; z-index: 9999; top: 0; right: 0; left: 88px; height: 44px; app-region: drag; -webkit-app-region: drag; user-select: none; }
     @media (prefers-color-scheme: dark) {
       body { color: #edf3ff; background: radial-gradient(circle at 50% 20%, #172441 0, #0d1320 58%, #090d15 100%); }
-      main { background: rgba(20,28,43,.9); border-color: rgba(140,165,210,.18); }
+      .card { background: rgba(20,28,43,.9); border-color: rgba(140,165,210,.18); }
       p { color: #aebbd2; }
       .spinner { border-color: #293752; border-top-color: #7fa1ff; }
       .titlebar-backdrop { background: rgba(13,19,32,.76); border-bottom-color: rgba(140,165,210,.12); }
-    }
+    }${compactStyle}
   </style>
 </head>
-<body>${macTitlebar}<main><div class="mark">D</div><h1>DeepSeek Harness</h1><p>${safeMessage}</p><div class="spinner"></div></main></body>
+<body>${macTitlebar}<main${compact ? '' : ' class="card"'}><div class="mark">D</div><h1>DeepSeek Harness</h1><p>${safeMessage}</p><div class="spinner"></div></main></body>
 </html>`
 }
 
@@ -254,6 +264,17 @@ function createWindow() {
   return window
 }
 
+// Windows 上 Harness 的原生文件夹对话框会让它的 picker 子进程硬崩溃（上游
+// dsh-host-directory-picker-native 的 readUtf16 以固定 32768 字节 koffi.view 越界读取
+// GetDisplayName 返回的路径），表现为「directory picker failed: win32 folder dialog
+// worker exited before reporting a result」。Harness 的 directory-picker-auto 见到
+// SSH_CONNECTION 就退回网页内的目录浏览器，该变量在 Harness 里只有这一处消费者。
+// 上游修好后删掉这段即可。
+function directoryPickerFallbackEnv() {
+  if (process.platform !== 'win32') return {}
+  return { SSH_CONNECTION: '127.0.0.1 0 127.0.0.1 0' }
+}
+
 function startHarness(runtime) {
   const dshHome = join(app.getPath('userData'), 'harness-home')
   console.log(`DeepSeek Harness: starting Harness ${runtime.version} (${runtime.source}) with data in ${dshHome}`)
@@ -263,6 +284,7 @@ function startHarness(runtime) {
       ...process.env,
       DSH_HOME: dshHome,
       ELECTRON_RUN_AS_NODE: '1',
+      ...directoryPickerFallbackEnv(),
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   })
@@ -327,19 +349,23 @@ async function stopHarness() {
 function createUpdateProgressWindow(version) {
   const parent = mainWindow !== undefined && !mainWindow.isDestroyed() ? mainWindow : undefined
   const window = new BrowserWindow({
-    width: 520,
-    height: 340,
+    width: 440,
+    height: 320,
     resizable: false,
     minimizable: false,
     maximizable: false,
+    fullscreenable: false,
     show: false,
     modal: parent !== undefined,
     parent,
+    autoHideMenuBar: true,
     title: '更新 DeepSeek Harness',
     backgroundColor: '#f7f9fc',
     webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true },
   })
-  void window.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(loadingPage(`正在下载并验证 DeepSeek Harness ${version}，请稍候…`))}`)
+  // Windows/Linux 上小窗会继承应用菜单栏（文件/编辑/显示/…），进度窗里完全是噪音。
+  if (process.platform !== 'darwin') window.removeMenu()
+  void window.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(loadingPage(`正在下载并验证 DeepSeek Harness ${version}，请稍候…`, { compact: true }))}`)
   window.once('ready-to-show', () => window.show())
   return window
 }
