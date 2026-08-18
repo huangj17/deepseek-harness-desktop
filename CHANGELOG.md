@@ -1,25 +1,27 @@
-# 更新日志
+# Changelog
 
-本文件记录桌面客户端每个版本的变化。发布流水线会从这里取出对应版本的小节作为 GitHub Release 的说明，所以发版前请先在这里补上一节。
+**English** · [简体中文](CHANGELOG.zh-CN.md)
+
+This file records what changed in each desktop client release. The release workflow reads the section matching the tag from this file and from [CHANGELOG.zh-CN.md](CHANGELOG.zh-CN.md), so add a section to both before tagging a release.
 
 ## 0.2.9
 
-- 新增：应用内检查客户端自身的更新。启动后及每 6 小时查询 GitHub 发布页，发现新版会弹窗提示，可直接前往下载对应平台的安装包。
-- 新增：更新提示支持「跳过此版本」，跳过后该版本不再打扰；从菜单主动点「检查客户端更新…」时仍会正常提示。
-- 说明：客户端更新仍需手动安装新包（安装包未做 Apple Developer ID 签名，无法静默自动更新）。Harness 运行时的自动更新不受影响。
+- Added: the app now checks for desktop client updates itself. It queries the GitHub releases feed after launch and every six hours, and a new version opens a prompt that links straight to the installer for your platform.
+- Added: the update prompt can skip a version. A skipped version stops asking, while checking manually from the menu always reports what is available.
+- Note: client updates are still installed by hand — the packages carry no Apple Developer ID signature, so silent auto-update is not possible. Harness runtime updates are unaffected.
 
 ## 0.2.8
 
-- 修复：Windows 上点「打开文件夹」选中目录后报 `win32 folder dialog worker exited before reporting a result`，无法打开工作区。根因在上游 Harness 的原生目录选择器会读越界导致子进程崩溃，客户端在 Windows 上改用网页内的目录浏览器规避。
-- 修复：从 Finder / 开始菜单启动时，更新 Harness 会因为找不到 `node` 而失败（退出码 127）。现在安装过程自带 node 垫片，不再依赖系统 PATH。
-- 优化：更新进度窗重新设计，去掉重复的卡片边框和 macOS 假标题栏；Windows / Linux 上不再显示多余的菜单栏和滚动条。
+- Fixed: picking a folder on Windows failed with `win32 folder dialog worker exited before reporting a result`, leaving the workspace unopened. The upstream native picker over-reads the returned path and crashes its worker process, so the client now uses the in-page directory browser on Windows.
+- Fixed: updating the Harness runtime failed with exit code 127 when the app was launched from Finder or the Start menu, because dependency install scripts could not find `node` on the inherited PATH. The installer now carries its own node shim.
+- Improved: the update progress window no longer draws a card inside a card or the fake macOS titlebar, and it drops the inherited menu bar and scrollbar on Windows and Linux.
 
 ## 0.2.7
 
-- 新增：提供 macOS（Apple 芯片 / Intel）、Windows、Linux 全平台安装包。
-- 修复：Linux 软件包元数据不完整的问题。
-- 优化：明确客户端与官方 Harness 的关系，避免与官方发布混淆。
+- Added: installers for macOS (Apple Silicon and Intel), Windows, and Linux.
+- Fixed: incomplete Linux package metadata.
+- Improved: clearer wording about how this client relates to the official Harness.
 
 ## 0.2.6
 
-- 首个开源发布版本。
+- First open-source release.

@@ -1,5 +1,6 @@
-// 取出某个版本的发布说明：优先用 CHANGELOG.md 里对应的小节，没写的话退回该
-// 版本区间的提交标题，保证发布说明永远不会是空的。
+// 取出某个版本的发布说明：优先用 CHANGELOG.md / CHANGELOG.zh-CN.md 里对应的小节
+// （英文在前、中文在后，跟 README 的双语约定一致），两份都没写就退回该版本区间的
+// 提交标题，保证发布说明永远不会是空的。
 // 用法：node scripts/release-notes.mjs v0.2.9 [> notes.md]
 
 import { execFileSync } from 'node:child_process'
@@ -34,10 +35,20 @@ export function commitSubjects(tag) {
   return log === '' ? undefined : log
 }
 
+async function changelogSection(fileName, version) {
+  const changelog = await readFile(join(repositoryRoot, fileName), 'utf8').catch(() => '')
+  return extractChangelogSection(changelog, version)
+}
+
 export async function releaseNotes(tag) {
   const version = tag.replace(/^v/, '')
-  const changelog = await readFile(join(repositoryRoot, 'CHANGELOG.md'), 'utf8').catch(() => '')
-  return extractChangelogSection(changelog, version) ?? commitSubjects(tag) ?? `发布 ${version}。`
+  const english = await changelogSection('CHANGELOG.md', version)
+  const chinese = await changelogSection('CHANGELOG.zh-CN.md', version)
+  // 只有一种语言写了就不加语言标题，免得孤零零挂一个 "### English"。
+  if (english !== undefined && chinese !== undefined) {
+    return `### English\n\n${english}\n\n---\n\n### 简体中文\n\n${chinese}`
+  }
+  return english ?? chinese ?? commitSubjects(tag) ?? `Release ${version}.`
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
