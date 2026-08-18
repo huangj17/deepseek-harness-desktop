@@ -13,7 +13,7 @@
   },
   "scripts": {
     "start": "electron .",
-    "check": "node --check src/main.mjs && node --check src/harness-updater.mjs && node --check src/desktop-updater.mjs && node scripts/check-package.mjs && node scripts/test-updater.mjs && node scripts/test-desktop-updater.mjs",
+    "check": "node --check src/main.mjs && node --check src/harness-updater.mjs && node --check src/desktop-updater.mjs && node scripts/check-package.mjs && node scripts/test-updater.mjs && node scripts/test-desktop-updater.mjs && node scripts/test-release-notes.mjs",
     "smoke:runtime": "node scripts/smoke-runtime.mjs",
     "smoke:packaged": "node scripts/smoke-packaged-runtime.mjs",
     "smoke:updater": "node scripts/smoke-updater.mjs",
