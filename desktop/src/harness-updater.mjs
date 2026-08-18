@@ -1,5 +1,5 @@
-import { access, mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises'
-import { dirname, join } from 'node:path'
+import { access, chmod, mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises'
+import { delimiter, dirname, join } from 'node:path'
 import { spawn } from 'node:child_process'
 import semver from 'semver'
 
@@ -75,7 +75,31 @@ export async function fetchLatestHarnessVersion({ fetchImplementation = globalTh
   }
 }
 
-function runNpmInstall({ electronExecutable, npmCliPath, targetDirectory, cacheDirectory, version, onOutput }) {
+// GUI 启动的应用继承不到用户 shell 的 PATH（macOS 从 Finder 启动尤其明显），而依赖树里
+// 的 install/postinstall 脚本（node-pty、koffi、dsh-subprocess-local 等）都会调用 `node`，
+// 缺了就是 `sh: node: command not found` 加退出码 127，整个更新失败。这里写一个把 Electron
+// 以 run-as-node 模式重新执行的 node 垫片，挂到 npm 子进程 PATH 的最前面。
+async function ensureNodeShimDirectory(userDataDirectory, electronExecutable) {
+  const directory = join(userDataDirectory, 'node-shim')
+  await mkdir(directory, { recursive: true })
+  if (process.platform === 'win32') {
+    await writeFile(join(directory, 'node.cmd'), `@echo off\r\nset "ELECTRON_RUN_AS_NODE=1"\r\n"${electronExecutable}" %*\r\n`)
+    return directory
+  }
+  const shimPath = join(directory, 'node')
+  await writeFile(shimPath, `#!/bin/sh\nELECTRON_RUN_AS_NODE=1 exec "${electronExecutable}" "$@"\n`)
+  await chmod(shimPath, 0o755)
+  return directory
+}
+
+// Windows 上 process.env 的键名大小写不定（通常是 Path），直接加一个 PATH 会变成两个键。
+function withDirectoryOnPath(env, directory) {
+  const key = Object.keys(env).find(name => name.toUpperCase() === 'PATH') ?? 'PATH'
+  const current = env[key]
+  return { ...env, [key]: current === undefined || current === '' ? directory : `${directory}${delimiter}${current}` }
+}
+
+function runNpmInstall({ electronExecutable, npmCliPath, targetDirectory, cacheDirectory, version, shimDirectory, onOutput }) {
   return new Promise((resolve, reject) => {
     const args = [
       npmCliPath,
@@ -90,7 +114,7 @@ function runNpmInstall({ electronExecutable, npmCliPath, targetDirectory, cacheD
       '--cache', cacheDirectory,
     ]
     const child = spawn(electronExecutable, args, {
-      env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' },
+      env: withDirectoryOnPath({ ...process.env, ELECTRON_RUN_AS_NODE: '1' }, shimDirectory),
       stdio: ['ignore', 'pipe', 'pipe'],
     })
     let output = ''
@@ -136,6 +160,7 @@ export async function installHarnessRuntime({ userDataDirectory, bundledNpmPacka
   const temporaryDirectory = join(root, `.installing-${process.pid}-${Date.now()}`)
   const npmCliPath = join(dirname(bundledNpmPackagePath), 'bin', 'npm-cli.js')
   await access(npmCliPath)
+  const shimDirectory = await ensureNodeShimDirectory(userDataDirectory, electronExecutable)
   await mkdir(temporaryDirectory, { recursive: true })
   try {
     await runNpmInstall({
@@ -144,6 +169,7 @@ export async function installHarnessRuntime({ userDataDirectory, bundledNpmPacka
       targetDirectory: temporaryDirectory,
       cacheDirectory: join(userDataDirectory, 'npm-cache'),
       version: validVersion,
+      shimDirectory,
       onOutput,
     })
     const temporaryPackagePath = join(temporaryDirectory, 'node_modules', '@deepseek-ai', 'dsh', 'package.json')
