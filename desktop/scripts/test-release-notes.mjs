@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { commitSubjects, extractChangelogSection, releaseNotes } from './release-notes.mjs'
+import { extractChangelogSection, releaseNotes } from './release-notes.mjs'
 
 const changelog = [
   '# 更新日志',
@@ -20,13 +20,12 @@ assert.equal(extractChangelogSection(changelog, '0.2.9'), '- 修复：丙')
 assert.equal(extractChangelogSection(changelog, '0.2.8'), undefined)
 assert.equal(extractChangelogSection('# 更新日志\n\n## 0.1.0\n', '0.1.0'), undefined)
 
-// 真实仓库：两份 CHANGELOG 都写了就出双语，标签区间的提交标题作为兜底。
+// 真实仓库：两份 CHANGELOG 都写了就出双语。
 const notes = await releaseNotes('v0.2.10')
 assert.match(notes, /^### English$/m)
 assert.match(notes, /system browser/)
 assert.match(notes, /^### 简体中文$/m)
 assert.match(notes, /系统默认浏览器/)
 assert.ok(notes.indexOf('### English') < notes.indexOf('### 简体中文'))
-assert.match(commitSubjects('v0.2.9'), /^- Check for desktop client updates in the app$/m)
 
 console.log('Release notes tests passed')
