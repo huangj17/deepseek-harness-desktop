@@ -3,14 +3,16 @@ import { mkdtemp, rm } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
+import { harnessWebArguments } from '../src/harness-launch.mjs'
 
 const require = createRequire(import.meta.url)
 const electronBinary = require('electron')
 const dshManifest = require.resolve('@deepseek-ai/dsh/package.json')
+const dshVersion = require(dshManifest).version
 const dshBin = join(dirname(dshManifest), 'lib', 'bin.js')
 const dshHome = await mkdtemp(join(tmpdir(), 'deepseek-harness-desktop-smoke-'))
 
-const child = spawn(electronBinary, ['--expose-internals', dshBin, 'web', '--host', '127.0.0.1', '--port', '0'], {
+const child = spawn(electronBinary, harnessWebArguments({ version: dshVersion, binPath: dshBin }), {
   env: { ...process.env, DSH_HOME: dshHome, ELECTRON_RUN_AS_NODE: '1' },
   stdio: ['ignore', 'pipe', 'pipe'],
 })

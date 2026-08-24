@@ -20,6 +20,7 @@ import {
   readSkippedDesktopVersion,
   skipDesktopVersion,
 } from './desktop-updater.mjs'
+import { harnessWebArguments } from './harness-launch.mjs'
 
 const require = createRequire(import.meta.url)
 const LEGACY_USER_DATA_DIRECTORY = 'DeepSeek Harness Desktop'
@@ -290,7 +291,7 @@ function directoryPickerFallbackEnv() {
 function startHarness(runtime) {
   const dshHome = join(app.getPath('userData'), 'harness-home')
   console.log(`DeepSeek Harness: starting Harness ${runtime.version} (${runtime.source}) with data in ${dshHome}`)
-  const child = spawn(process.execPath, ['--expose-internals', runtime.binPath, 'web', '--host', '127.0.0.1', '--port', '0'], {
+  const child = spawn(process.execPath, harnessWebArguments(runtime), {
     cwd: app.getPath('home'),
     env: {
       ...process.env,

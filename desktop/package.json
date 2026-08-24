@@ -1,6 +1,6 @@
 {
   "name": "deepseek-harness-desktop",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "description": "A self-contained desktop launcher for DeepSeek Harness",
   "homepage": "https://github.com/huangj17/deepseek-harness-desktop",
   "desktopName": "deepseek-harness.desktop",
@@ -13,7 +13,7 @@
   },
   "scripts": {
     "start": "electron .",
-    "check": "node --check src/main.mjs && node --check src/harness-updater.mjs && node --check src/desktop-updater.mjs && node scripts/check-package.mjs && node scripts/test-updater.mjs && node scripts/test-desktop-updater.mjs && node scripts/test-release-notes.mjs",
+    "check": "node --check src/main.mjs && node --check src/harness-updater.mjs && node --check src/desktop-updater.mjs && node --check src/harness-launch.mjs && node scripts/check-package.mjs && node scripts/test-updater.mjs && node scripts/test-desktop-updater.mjs && node scripts/test-harness-launch.mjs && node scripts/test-release-notes.mjs",
     "smoke:runtime": "node scripts/smoke-runtime.mjs",
     "smoke:packaged": "node scripts/smoke-packaged-runtime.mjs",
     "smoke:updater": "node scripts/smoke-updater.mjs",

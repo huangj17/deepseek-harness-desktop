@@ -4,6 +4,12 @@
 
 This file records what changed in each desktop client release. The release workflow reads the section matching the tag from this file and from [CHANGELOG.zh-CN.md](CHANGELOG.zh-CN.md), so add a section to both before tagging a release.
 
+## 0.2.10
+
+- Fixed: after an in-app Harness update to `0.1.1-rc.2` or later, launching the desktop client also opened the Harness page in the system browser. The client now passes `--no-open` to compatible runtimes so the Web UI stays in the Electron window.
+- Compatibility: older bundled Harness versions do not recognize `--no-open`, so the launcher keeps their original arguments and enables the flag only for versions that support it.
+- Tests: source and packaged-runtime smoke tests now share the same version-aware launch arguments, preventing the browser handoff from returning in a later bundled-runtime update.
+
 ## 0.2.9
 
 - Added: the app now checks for desktop client updates itself. It queries the GitHub releases feed after launch and every six hours, and a new version opens a prompt that links straight to the installer for your platform.

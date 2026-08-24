@@ -1,8 +1,9 @@
 import { spawn } from 'node:child_process'
-import { access, mkdtemp, rm } from 'node:fs/promises'
+import { access, mkdtemp, readFile, rm } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
+import { harnessWebArguments } from '../src/harness-launch.mjs'
 
 const desktopDirectory = dirname(dirname(fileURLToPath(import.meta.url)))
 
@@ -44,10 +45,11 @@ if (appDirectory === undefined) {
 
 const resourcesDirectory = join(appDirectory, ...platformLayout.resources)
 const electronBinary = join(appDirectory, ...platformLayout.executable)
+const dshManifest = JSON.parse(await readFile(join(resourcesDirectory, 'node_modules', '@deepseek-ai', 'dsh', 'package.json'), 'utf8'))
 const dshBin = join(resourcesDirectory, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
 const dshHome = await mkdtemp(join(tmpdir(), 'deepseek-harness-packaged-smoke-'))
 
-const child = spawn(electronBinary, ['--expose-internals', dshBin, 'web', '--host', '127.0.0.1', '--port', '0'], {
+const child = spawn(electronBinary, harnessWebArguments({ version: dshManifest.version, binPath: dshBin }), {
   env: { ...process.env, DSH_HOME: dshHome, ELECTRON_RUN_AS_NODE: '1' },
   stdio: ['ignore', 'pipe', 'pipe'],
 })

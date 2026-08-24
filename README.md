@@ -37,18 +37,18 @@ DeepSeek Harness Desktop packages the official [DeepSeek Harness](https://github
 
 ## Download and install
 
-Choose the package for your system. These links download version **0.2.9** directly:
+Choose the package for your system. These links download version **0.2.10** directly:
 
 | System | Architecture | Package | Download |
 | --- | --- | --- | --- |
-| macOS | Apple Silicon | DMG | [Download](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.9/DeepSeek-Harness-0.2.9-arm64.dmg) |
-| macOS | Intel | DMG | [Download](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.9/DeepSeek-Harness-0.2.9-x64.dmg) |
-| Windows | x64 | Setup installer | [Download](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.9/DeepSeek-Harness-0.2.9-x64.exe) |
-| Windows | x64 | Portable ZIP | [Download](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.9/DeepSeek-Harness-0.2.9-x64.zip) |
-| Linux | x64 | AppImage | [Download](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.9/DeepSeek-Harness-0.2.9-x64.AppImage) |
-| Debian / Ubuntu | x64 | deb | [Download](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.9/DeepSeek-Harness-0.2.9-x64.deb) |
+| macOS | Apple Silicon | DMG | [Download](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.10/DeepSeek-Harness-0.2.10-arm64.dmg) |
+| macOS | Intel | DMG | [Download](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.10/DeepSeek-Harness-0.2.10-x64.dmg) |
+| Windows | x64 | Setup installer | [Download](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.10/DeepSeek-Harness-0.2.10-x64.exe) |
+| Windows | x64 | Portable ZIP | [Download](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.10/DeepSeek-Harness-0.2.10-x64.zip) |
+| Linux | x64 | AppImage | [Download](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.10/DeepSeek-Harness-0.2.10-x64.AppImage) |
+| Debian / Ubuntu | x64 | deb | [Download](https://github.com/huangj17/deepseek-harness-desktop/releases/download/v0.2.10/DeepSeek-Harness-0.2.10-x64.deb) |
 
-[View all release files and SHA-256 checksums](https://github.com/huangj17/deepseek-harness-desktop/releases/tag/v0.2.9).
+[View all release files and SHA-256 checksums](https://github.com/huangj17/deepseek-harness-desktop/releases/tag/v0.2.10).
 
 - **macOS:** open the DMG and drag **DeepSeek Harness** into **Applications**.
 - **Windows installer:** run the EXE and follow its prompts. For the portable build, extract the ZIP and launch the app directly.
@@ -56,7 +56,7 @@ Choose the package for your system. These links download version **0.2.9** direc
 
 After installation, launch **DeepSeek Harness** and follow the in-app prompts to configure your DeepSeek API key and choose a workspace.
 
-Current desktop release: **0.2.9**<br>
+Current desktop release: **0.2.10**<br>
 Bundled Harness release: **0.1.0-rc.6**
 
 > [!NOTE]
