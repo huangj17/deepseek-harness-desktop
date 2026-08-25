@@ -1,6 +1,6 @@
 {
   "name": "deepseek-harness-desktop",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "description": "A self-contained desktop launcher for DeepSeek Harness",
   "homepage": "https://github.com/huangj17/deepseek-harness-desktop",
   "desktopName": "deepseek-harness.desktop",
