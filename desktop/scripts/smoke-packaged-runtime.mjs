@@ -3,6 +3,7 @@ import { access, mkdtemp, readFile, rm } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
+import { installDesktopIntegration, TERMINAL_BUTTON_PLUGIN_NAME } from '../src/desktop-integration.mjs'
 import { harnessWebArguments } from '../src/harness-launch.mjs'
 
 const desktopDirectory = dirname(dirname(fileURLToPath(import.meta.url)))
@@ -47,10 +48,11 @@ const resourcesDirectory = join(appDirectory, ...platformLayout.resources)
 const electronBinary = join(appDirectory, ...platformLayout.executable)
 const dshManifest = JSON.parse(await readFile(join(resourcesDirectory, 'node_modules', '@deepseek-ai', 'dsh', 'package.json'), 'utf8'))
 const dshBin = join(resourcesDirectory, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
-const dshHome = await mkdtemp(join(tmpdir(), 'deepseek-harness-packaged-smoke-'))
+const userDataDirectory = await mkdtemp(join(tmpdir(), 'deepseek-harness-packaged-smoke-'))
+const integration = await installDesktopIntegration({ appPath: resourcesDirectory, userDataDirectory })
 
-const child = spawn(electronBinary, harnessWebArguments({ version: dshManifest.version, binPath: dshBin }), {
-  env: { ...process.env, DSH_HOME: dshHome, ELECTRON_RUN_AS_NODE: '1' },
+const child = spawn(electronBinary, harnessWebArguments({ version: dshManifest.version, binPath: dshBin }, { patchPath: integration.patchPath }), {
+  env: { ...process.env, DSH_HOME: integration.dshHome, ELECTRON_RUN_AS_NODE: '1' },
   stdio: ['ignore', 'pipe', 'pipe'],
 })
 
@@ -97,6 +99,7 @@ try {
   if (!response.ok || !/<!doctype html>/i.test(html)) {
     throw new Error(`Unexpected packaged Web response: HTTP ${response.status}\n${html.slice(0, 500)}`)
   }
+  if (!html.includes(TERMINAL_BUTTON_PLUGIN_NAME)) throw new Error('Packaged Web UI boot manifest does not include the desktop terminal button')
   console.log(`Packaged runtime ready and Web UI returned HTTP ${response.status}: ${url}`)
 } finally {
   if (child.exitCode === null && child.signalCode === null) {
@@ -109,5 +112,5 @@ try {
       })
     })
   }
-  await rm(dshHome, { recursive: true, force: true })
+  await rm(userDataDirectory, { recursive: true, force: true })
 }

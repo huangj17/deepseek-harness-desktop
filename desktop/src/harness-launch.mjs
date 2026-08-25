@@ -5,11 +5,12 @@ import semver from 'semver'
 // original arguments until the active runtime supports it.
 const NO_OPEN_MIN_VERSION = '0.1.1-rc.2'
 
-export function harnessWebArguments(runtime) {
+export function harnessWebArguments(runtime, { patchPath } = {}) {
   return [
     '--expose-internals',
     runtime.binPath,
     'web',
+    ...(patchPath === undefined ? [] : ['--patch', patchPath]),
     ...(semver.gte(runtime.version, NO_OPEN_MIN_VERSION) ? ['--no-open'] : []),
     '--host', '127.0.0.1',
     '--port', '0',

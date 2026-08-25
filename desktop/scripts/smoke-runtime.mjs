@@ -3,17 +3,21 @@ import { mkdtemp, rm } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { installDesktopIntegration, TERMINAL_BUTTON_PLUGIN_NAME } from '../src/desktop-integration.mjs'
 import { harnessWebArguments } from '../src/harness-launch.mjs'
 
 const require = createRequire(import.meta.url)
+const desktopDirectory = dirname(dirname(fileURLToPath(import.meta.url)))
 const electronBinary = require('electron')
 const dshManifest = require.resolve('@deepseek-ai/dsh/package.json')
 const dshVersion = require(dshManifest).version
 const dshBin = join(dirname(dshManifest), 'lib', 'bin.js')
-const dshHome = await mkdtemp(join(tmpdir(), 'deepseek-harness-desktop-smoke-'))
+const userDataDirectory = await mkdtemp(join(tmpdir(), 'deepseek-harness-desktop-smoke-'))
+const integration = await installDesktopIntegration({ appPath: desktopDirectory, userDataDirectory })
 
-const child = spawn(electronBinary, harnessWebArguments({ version: dshVersion, binPath: dshBin }), {
-  env: { ...process.env, DSH_HOME: dshHome, ELECTRON_RUN_AS_NODE: '1' },
+const child = spawn(electronBinary, harnessWebArguments({ version: dshVersion, binPath: dshBin }, { patchPath: integration.patchPath }), {
+  env: { ...process.env, DSH_HOME: integration.dshHome, ELECTRON_RUN_AS_NODE: '1' },
   stdio: ['ignore', 'pipe', 'pipe'],
 })
 
@@ -62,6 +66,7 @@ try {
   if (!response.ok || !/<!doctype html>/i.test(html)) {
     throw new Error(`Unexpected Web response: HTTP ${response.status}\n${html.slice(0, 500)}`)
   }
+  if (!html.includes(TERMINAL_BUTTON_PLUGIN_NAME)) throw new Error('Web UI boot manifest does not include the desktop terminal button')
   console.log(`Runtime ready and Web UI returned HTTP ${response.status}: ${url}`)
 } finally {
   if (child.exitCode === null && child.signalCode === null) {
@@ -74,5 +79,5 @@ try {
       })
     })
   }
-  await rm(dshHome, { recursive: true, force: true })
+  await rm(userDataDirectory, { recursive: true, force: true })
 }

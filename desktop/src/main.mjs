@@ -2,7 +2,7 @@ import { appendFile, mkdir } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
 import { spawn } from 'node:child_process'
-import { app, BrowserWindow, dialog, Menu, nativeImage, shell, Tray } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, Menu, nativeImage, shell, Tray } from 'electron'
 import {
   bundledHarnessRuntime,
   deactivateDownloadedHarnessRuntime,
@@ -22,6 +22,8 @@ import {
 } from './desktop-updater.mjs'
 import { harnessWebArguments } from './harness-launch.mjs'
 import { hideMainWindowOnClose, revealMainWindow } from './window-lifecycle.mjs'
+import { installDesktopIntegration } from './desktop-integration.mjs'
+import { OPEN_DSH_TERMINAL_CHANNEL, openDshTerminal } from './dsh-terminal.mjs'
 
 const require = createRequire(import.meta.url)
 const LEGACY_USER_DATA_DIRECTORY = 'DeepSeek Harness Desktop'
@@ -40,6 +42,8 @@ let harnessOrigin
 let mainWindow
 let tray
 let activeHarnessRuntime
+let runningHarnessRuntime
+let desktopIntegrationPatchPath
 let updateCheckInProgress = false
 let desktopCheckInProgress = false
 let updateCheckDelay
@@ -98,6 +102,10 @@ async function appendLog(text) {
   const logsDirectory = app.getPath('logs')
   await mkdir(logsDirectory, { recursive: true })
   await appendFile(join(logsDirectory, 'deepseek-harness-desktop.log'), text).catch(() => {})
+}
+
+function dshHomeDirectory() {
+  return join(app.getPath('userData'), 'harness-home')
 }
 
 function configureMenu() {
@@ -195,6 +203,47 @@ function originOf(url) {
   }
 }
 
+function isTrustedMainFrame(event) {
+  return mainWindow !== undefined
+    && !mainWindow.isDestroyed()
+    && event.sender === mainWindow.webContents
+    && event.senderFrame === mainWindow.webContents.mainFrame
+    && harnessOrigin !== undefined
+    && originOf(event.senderFrame.url) === harnessOrigin
+}
+
+function registerDesktopIpc() {
+  ipcMain.handle(OPEN_DSH_TERMINAL_CHANNEL, async (event, requestedCwd) => {
+    if (!isTrustedMainFrame(event)) return { ok: false, error: '拒绝来自非 Harness 主页面的终端请求。' }
+    try {
+      if (runningHarnessRuntime === undefined) throw new Error('Harness 尚未完成启动。')
+      const result = await openDshTerminal({
+        terminalDirectory: join(app.getPath('userData'), 'dsh-terminal'),
+        electronExecutable: process.platform === 'linux' && process.env.APPIMAGE !== undefined
+          ? process.env.APPIMAGE
+          : process.execPath,
+        runtime: runningHarnessRuntime,
+        dshHome: dshHomeDirectory(),
+        requestedCwd,
+        fallbackCwd: app.getPath('home'),
+      })
+      await appendLog(`[${new Date().toISOString()}] opened DSH terminal ${runningHarnessRuntime.version} at ${result.cwd}\n`)
+      return { ok: true, cwd: result.cwd }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      await appendLog(`[${new Date().toISOString()}] terminal error: ${message}\n`)
+      await showMessageBox({
+        type: 'error',
+        title: '无法打开 DSH 终端',
+        message: '系统终端未能启动。',
+        detail: message,
+        buttons: ['好'],
+      })
+      return { ok: false, error: message }
+    }
+  })
+}
+
 function installMacWindowChrome() {
   const styleId = 'deepseek-harness-desktop-titlebar-spacing'
   const backdropId = 'deepseek-harness-desktop-titlebar-backdrop'
@@ -290,6 +339,7 @@ function createWindow() {
       nodeIntegration: false,
       sandbox: true,
       webSecurity: true,
+      preload: join(app.getAppPath(), 'src', 'preload.cjs'),
     },
   })
 
@@ -338,9 +388,9 @@ function directoryPickerFallbackEnv() {
 }
 
 function startHarness(runtime) {
-  const dshHome = join(app.getPath('userData'), 'harness-home')
+  const dshHome = dshHomeDirectory()
   console.log(`DeepSeek Harness: starting Harness ${runtime.version} (${runtime.source}) with data in ${dshHome}`)
-  const child = spawn(process.execPath, harnessWebArguments(runtime), {
+  const child = spawn(process.execPath, harnessWebArguments(runtime, { patchPath: desktopIntegrationPatchPath }), {
     cwd: app.getPath('home'),
     env: {
       ...process.env,
@@ -354,6 +404,7 @@ function startHarness(runtime) {
 
   return new Promise((resolve, reject) => {
     let settled = false
+    let ready = false
     let output = ''
 
     const finish = (callback, value) => {
@@ -368,16 +419,26 @@ function startHarness(runtime) {
       output = `${output}${text}`.slice(-40_000)
       void appendLog(`[${new Date().toISOString()}] ${source}: ${text}`)
       const match = output.match(READY_PATTERN)
-      if (match?.[1] !== undefined) finish(resolve, match[1])
+      if (match?.[1] !== undefined) {
+        ready = true
+        runningHarnessRuntime = runtime
+        finish(resolve, match[1])
+      }
     }
 
     child.stdout.on('data', chunk => observe('stdout', chunk))
     child.stderr.on('data', chunk => observe('stderr', chunk))
-    child.once('error', error => finish(reject, error))
-    child.once('exit', (code, signal) => {
+    child.once('error', error => {
       if (harnessProcess === child) harnessProcess = undefined
+      finish(reject, error)
+    })
+    child.once('exit', (code, signal) => {
+      if (harnessProcess === child) {
+        harnessProcess = undefined
+        runningHarnessRuntime = undefined
+      }
       if (!settled) finish(reject, new Error(`本地服务提前退出（退出码 ${String(code)}，信号 ${String(signal)}）。\n\n${output.slice(-4_000)}`))
-      else if (!quitting) {
+      else if (ready && !quitting) {
         const message = `本地服务意外退出（退出码 ${String(code)}，信号 ${String(signal)}）。请退出后重新打开应用。`
         void appendLog(`[${new Date().toISOString()}] ${message}\n`)
         if (mainWindow !== undefined && !mainWindow.isDestroyed()) {
@@ -389,8 +450,36 @@ function startHarness(runtime) {
 
     const timeout = setTimeout(() => {
       finish(reject, new Error(`本地服务在 ${STARTUP_TIMEOUT_MS / 1000} 秒内没有完成启动。\n\n${output.slice(-4_000)}`))
+      if (child.exitCode === null && child.signalCode === null) child.kill('SIGTERM')
     }, STARTUP_TIMEOUT_MS)
   })
+}
+
+async function startHarnessWithDesktopIntegration(runtime) {
+  try {
+    return await startHarness(runtime)
+  } catch (error) {
+    if (desktopIntegrationPatchPath === undefined) throw error
+    const failedPatchPath = desktopIntegrationPatchPath
+    desktopIntegrationPatchPath = undefined
+    await stopHarness()
+    await appendLog(`[${new Date().toISOString()}] desktop integration prevented Harness startup; retrying without it: ${error instanceof Error ? error.message : String(error)}\n`)
+    let url
+    try {
+      url = await startHarness(runtime)
+    } catch (retryError) {
+      desktopIntegrationPatchPath = failedPatchPath
+      throw retryError
+    }
+    await showMessageBox({
+      type: 'warning',
+      title: 'DSH 终端入口已停用',
+      message: '当前 Harness 版本与桌面终端入口不兼容。',
+      detail: 'Harness 已正常启动，但侧栏中的“打开 DSH 终端”暂时不可用。',
+      buttons: ['好'],
+    })
+    return url
+  }
 }
 
 async function stopHarness() {
@@ -601,7 +690,7 @@ async function boot() {
     activeHarnessRuntime = await resolveHarnessRuntime({ userDataDirectory: app.getPath('userData'), bundledPackagePath: dshPackagePath })
     let url
     try {
-      url = await startHarness(activeHarnessRuntime)
+      url = await startHarnessWithDesktopIntegration(activeHarnessRuntime)
     } catch (error) {
       if (activeHarnessRuntime.source !== 'downloaded') throw error
       await appendLog(`[${new Date().toISOString()}] downloaded Harness ${activeHarnessRuntime.version} failed; reverting to bundled runtime.\n`)
@@ -614,7 +703,7 @@ async function boot() {
         detail: `当前版本：${activeHarnessRuntime.version}`,
         buttons: ['好'],
       })
-      url = await startHarness(activeHarnessRuntime)
+      url = await startHarnessWithDesktopIntegration(activeHarnessRuntime)
     }
     harnessOrigin = originOf(url)
     if (mainWindow !== undefined && !mainWindow.isDestroyed()) await mainWindow.loadURL(url)
@@ -660,6 +749,13 @@ if (!singleInstanceLock || launchedToQuit) {
 
   void app.whenReady().then(async () => {
     console.log('DeepSeek Harness: Electron is ready')
+    registerDesktopIpc()
+    try {
+      const integration = await installDesktopIntegration({ appPath: app.getAppPath(), userDataDirectory: app.getPath('userData') })
+      desktopIntegrationPatchPath = integration.patchPath
+    } catch (error) {
+      await appendLog(`[${new Date().toISOString()}] desktop integration error: ${error instanceof Error ? error.message : String(error)}\n`)
+    }
     configureBackgroundControls()
     await boot()
     startUpdateSchedule()

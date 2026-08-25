@@ -32,6 +32,7 @@ DeepSeek Harness Desktop 将官方 [DeepSeek Harness](https://github.com/deepsee
 - **本地优先**：Harness 服务仅监听 `127.0.0.1`，应用数据保存在操作系统的用户数据目录。
 - **运行时更新**：启动后及每 6 小时检查官方 `@deepseek-ai/dsh` npm 版本，验证成功后启用，失败时自动回退。
 - **客户端更新提醒**：启动后及每 6 小时检查 GitHub 发布页，发现新版可一键前往下载，也可跳过该版本。
+- **内置 DSH 终端入口**：从侧栏一键在当前工作区打开系统终端，直接使用客户端当前生效的内置或下载版 `dsh`，无需全局安装。
 - **关闭后继续运行**：关闭主窗口不会退出客户端，Harness 与进行中的任务会留在后台；点击应用图标可恢复窗口，右键 Dock、任务栏或系统托盘图标可完全退出。
 - **原生桌面外壳**：macOS 提供独立标题栏、拖动区和原生红黄绿按钮；Windows 使用标准系统窗口；Linux 提供原生软件包。
 - **官方源码同步**：官方源码作为 `upstream` Git 子模块保留，可与桌面客户端独立更新。
@@ -56,6 +57,7 @@ DeepSeek Harness Desktop 将官方 [DeepSeek Harness](https://github.com/deepsee
 - **Linux AppImage**：为文件添加可执行权限后启动；Debian 或 Ubuntu 用户也可以使用系统软件安装器打开 deb 包。
 
 安装完成后，打开 **DeepSeek Harness**，按照应用内提示配置 DeepSeek API Key 并选择工作目录。
+需要使用命令行时，点击侧栏底部的“打开 DSH 终端”。系统终端会定位到当前工作区，其中的 `dsh` 与桌面客户端使用相同的 Harness 数据目录和运行版本，无需另外全局安装。
 
 当前桌面客户端版本：**0.2.10**<br>
 安装包内置 Harness 版本：**0.1.0-rc.6**

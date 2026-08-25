@@ -14,9 +14,17 @@ if (!desktopManifest.build.files.includes('build/icon.png')) {
 }
 await readFile(new URL('../build/icon.png', import.meta.url))
 
+if (!desktopManifest.build.files.includes('plugins/**/*')) {
+  throw new Error('Desktop integration plugins are missing from build.files')
+}
+await readFile(new URL('../src/preload.cjs', import.meta.url))
+await readFile(new URL('../plugins/dsh-terminal-button/package.json', import.meta.url))
+await readFile(new URL('../plugins/dsh-terminal-button/client.js', import.meta.url))
+
 if (manifest.version !== '0.1.0-rc.6') {
   throw new Error(`Unexpected @deepseek-ai/dsh version: ${String(manifest.version)}`)
 }
 
 console.log(`Verified @deepseek-ai/dsh ${manifest.version} at ${binPath}`)
 console.log('Verified packaged tray icon')
+console.log('Verified packaged desktop integration')

@@ -18,4 +18,9 @@ assert.deepEqual(
   ['--expose-internals', '/runtime/dsh/bin.js', 'web', '--no-open', '--host', '127.0.0.1', '--port', '0'],
 )
 
+assert.deepEqual(
+  harnessWebArguments(runtime('0.2.0'), { patchPath: '/desktop/cordis.patch.yml' }),
+  ['--expose-internals', '/runtime/dsh/bin.js', 'web', '--patch', '/desktop/cordis.patch.yml', '--no-open', '--host', '127.0.0.1', '--port', '0'],
+)
+
 console.log('Harness launch tests passed')

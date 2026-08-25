@@ -32,6 +32,7 @@ DeepSeek Harness Desktop packages the official [DeepSeek Harness](https://github
 - **Local by default** — the Harness service listens on `127.0.0.1`; application data remains in the operating system's user data directory.
 - **Runtime updates** — checks the official `@deepseek-ai/dsh` npm release after launch and every six hours, with validation and automatic fallback.
 - **Client update checks** — checks the GitHub releases feed after launch and every six hours, opening the installer for your platform or letting you skip a version.
+- **Bundled DSH terminal** — opens the system terminal at the current workspace with the active bundled or downloaded `dsh` runtime ready to use.
 - **Close to background** — closing the main window keeps Harness and active tasks running; reopen it from the app icon, or use the Dock/taskbar/tray menu to quit fully.
 - **Native desktop shell** — polished macOS title bar and traffic-light controls, a standard Windows system frame, and native Linux packages.
 - **Upstream tracking** — the official source repository is kept as the `upstream` Git submodule and can be updated independently.
@@ -56,6 +57,7 @@ Choose the package for your system. These links download version **0.2.10** dire
 - **Linux AppImage:** mark the file as executable, then launch it. On Debian or Ubuntu, install the deb package with your software installer.
 
 After installation, launch **DeepSeek Harness** and follow the in-app prompts to configure your DeepSeek API key and choose a workspace.
+Use **Open DSH Terminal** at the bottom of the sidebar to open your system terminal in the current workspace. Its `dsh` command uses the same Harness home and runtime version as the desktop client; no global installation is required.
 
 Current desktop release: **0.2.10**<br>
 Bundled Harness release: **0.1.0-rc.6**
