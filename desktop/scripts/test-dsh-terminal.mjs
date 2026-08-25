@@ -64,8 +64,10 @@ try {
   const files = await createDshTerminalFiles({
     platform: 'darwin', terminalDirectory: join(root, 'terminal'), electronExecutable: '/Applications/Harness', runtime, dshHome: root, cwd: workspace,
   })
-  assert.equal((await stat(files.wrapperPath)).mode & 0o111, 0o111)
-  assert.equal((await stat(files.launcherPath)).mode & 0o111, 0o111)
+  if (process.platform !== 'win32') {
+    assert.equal((await stat(files.wrapperPath)).mode & 0o111, 0o111)
+    assert.equal((await stat(files.launcherPath)).mode & 0o111, 0o111)
+  }
   assert.match(await readFile(files.launcherPath, 'utf8'), /Workspace:/)
   assert.match(await readFile(files.launcherPath, 'utf8'), /rm -f --/)
 
