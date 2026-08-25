@@ -2,7 +2,7 @@ import { constants as fsConstants } from 'node:fs'
 import { access, chmod, mkdir, realpath, rm, stat, writeFile } from 'node:fs/promises'
 import { spawn } from 'node:child_process'
 import { randomUUID } from 'node:crypto'
-import { delimiter, extname, isAbsolute, join } from 'node:path'
+import { extname, isAbsolute, join } from 'node:path'
 
 export const OPEN_DSH_TERMINAL_CHANNEL = 'desktop:open-dsh-terminal'
 
@@ -89,7 +89,7 @@ async function findExecutable(name, { env = process.env, platform = process.plat
     }
   }
   const pathKey = Object.keys(env).find(key => key.toUpperCase() === 'PATH')
-  const pathDirectories = pathKey === undefined ? [] : (env[pathKey] ?? '').split(platform === 'win32' ? ';' : delimiter)
+  const pathDirectories = pathKey === undefined ? [] : (env[pathKey] ?? '').split(platform === 'win32' ? ';' : ':')
   const extensions = platform === 'win32' && extname(name) === ''
     ? (env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD').split(';')
     : ['']
@@ -156,7 +156,7 @@ async function platformExecutables(platform, env) {
 function withTerminalBinOnPath(env, binDirectory, platform) {
   const key = Object.keys(env).find(name => name.toUpperCase() === 'PATH') ?? 'PATH'
   const current = env[key]
-  const separator = platform === 'win32' ? ';' : delimiter
+  const separator = platform === 'win32' ? ';' : ':'
   return { ...env, [key]: current === undefined || current === '' ? binDirectory : `${binDirectory}${separator}${current}` }
 }
 
