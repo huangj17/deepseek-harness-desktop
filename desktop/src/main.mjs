@@ -2,7 +2,7 @@ import { appendFile, mkdir } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
 import { spawn } from 'node:child_process'
-import { app, BrowserWindow, dialog, Menu, shell } from 'electron'
+import { app, BrowserWindow, dialog, Menu, nativeImage, shell, Tray } from 'electron'
 import {
   bundledHarnessRuntime,
   deactivateDownloadedHarnessRuntime,
@@ -21,6 +21,7 @@ import {
   skipDesktopVersion,
 } from './desktop-updater.mjs'
 import { harnessWebArguments } from './harness-launch.mjs'
+import { hideMainWindowOnClose, revealMainWindow } from './window-lifecycle.mjs'
 
 const require = createRequire(import.meta.url)
 const LEGACY_USER_DATA_DIRECTORY = 'DeepSeek Harness Desktop'
@@ -37,6 +38,7 @@ app.setPath('userData', join(app.getPath('appData'), LEGACY_USER_DATA_DIRECTORY)
 let harnessProcess
 let harnessOrigin
 let mainWindow
+let tray
 let activeHarnessRuntime
 let updateCheckInProgress = false
 let desktopCheckInProgress = false
@@ -135,6 +137,49 @@ function configureMenu() {
     },
   ]
   Menu.setApplicationMenu(Menu.buildFromTemplate(template))
+}
+
+function requestQuit() {
+  app.quit()
+}
+
+function showMainWindow() {
+  return revealMainWindow(mainWindow)
+}
+
+function configureBackgroundControls() {
+  const taskbarTemplate = [
+    { label: '显示主窗口', click: () => showMainWindow() },
+    { type: 'separator' },
+    { label: '退出客户端', click: requestQuit },
+  ]
+
+  if (process.platform === 'darwin') {
+    app.dock.setMenu(Menu.buildFromTemplate(taskbarTemplate))
+    return
+  }
+
+  try {
+    const icon = nativeImage.createFromPath(join(app.getAppPath(), 'build', 'icon.png')).resize({ width: 20, height: 20 })
+    if (icon.isEmpty()) throw new Error('tray icon is empty')
+    tray = new Tray(icon)
+    tray.setToolTip('DeepSeek Harness')
+    tray.setContextMenu(Menu.buildFromTemplate(taskbarTemplate))
+    tray.on('click', () => showMainWindow())
+  } catch (error) {
+    void appendLog(`[${new Date().toISOString()}] tray error: ${error instanceof Error ? error.message : String(error)}\n`)
+  }
+
+  if (process.platform === 'win32' && app.isPackaged) {
+    app.setUserTasks([{
+      program: process.execPath,
+      arguments: '--quit-from-taskbar',
+      iconPath: process.execPath,
+      iconIndex: 0,
+      title: '退出 DeepSeek Harness',
+      description: '停止后台服务并退出客户端',
+    }])
+  }
 }
 
 function showMessageBox(options) {
@@ -266,6 +311,10 @@ function createWindow() {
     void injectMacWindowChrome(window).catch(error => {
       void appendLog(`[${new Date().toISOString()}] window chrome error: ${error instanceof Error ? error.message : String(error)}\n`)
     })
+  })
+
+  window.on('close', event => {
+    hideMainWindowOnClose(event, window, { quitting, shutdownComplete })
   })
 
   window.on('closed', () => {
@@ -580,21 +629,21 @@ async function boot() {
 }
 
 const singleInstanceLock = app.requestSingleInstanceLock()
-if (!singleInstanceLock) {
+const launchedToQuit = process.argv.includes('--quit-from-taskbar')
+if (!singleInstanceLock || launchedToQuit) {
   app.quit()
 } else {
-  app.on('second-instance', () => {
-    if (mainWindow === undefined) return
-    if (mainWindow.isMinimized()) mainWindow.restore()
-    mainWindow.show()
-    mainWindow.focus()
+  app.on('second-instance', (_event, commandLine) => {
+    if (commandLine.includes('--quit-from-taskbar')) {
+      requestQuit()
+      return
+    }
+    if (!showMainWindow() && !quitting) void boot()
   })
 
   app.on('activate', () => {
-    if (mainWindow === undefined && !quitting) void boot()
+    if (!showMainWindow() && !quitting) void boot()
   })
-
-  app.on('window-all-closed', () => app.quit())
 
   app.on('before-quit', event => {
     if (shutdownComplete) return
@@ -611,6 +660,7 @@ if (!singleInstanceLock) {
 
   void app.whenReady().then(async () => {
     console.log('DeepSeek Harness: Electron is ready')
+    configureBackgroundControls()
     await boot()
     startUpdateSchedule()
   }).catch(error => {

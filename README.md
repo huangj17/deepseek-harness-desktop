@@ -32,6 +32,7 @@ DeepSeek Harness Desktop packages the official [DeepSeek Harness](https://github
 - **Local by default** — the Harness service listens on `127.0.0.1`; application data remains in the operating system's user data directory.
 - **Runtime updates** — checks the official `@deepseek-ai/dsh` npm release after launch and every six hours, with validation and automatic fallback.
 - **Client update checks** — checks the GitHub releases feed after launch and every six hours, opening the installer for your platform or letting you skip a version.
+- **Close to background** — closing the main window keeps Harness and active tasks running; reopen it from the app icon, or use the Dock/taskbar/tray menu to quit fully.
 - **Native desktop shell** — polished macOS title bar and traffic-light controls, a standard Windows system frame, and native Linux packages.
 - **Upstream tracking** — the official source repository is kept as the `upstream` Git submodule and can be updated independently.
 
