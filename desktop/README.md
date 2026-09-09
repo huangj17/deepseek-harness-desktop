@@ -17,6 +17,8 @@
 
 也可以从应用菜单中选择“检查 Harness 更新…”立即检查。自动检查失败时不会打扰正常使用，错误会记录到应用日志。
 
+Harness 0.1.2-rc.1 的 Web 界面需要启动地址中的认证 token。客户端会等待完整启动日志行，并使用包含 token 的完整地址打开窗口；只打开主机和端口会显示 `dsh web authentication required`。
+
 ## 开发
 
 本目录是 Electron 客户端；同级的 `../upstream` 是保留了 Git 历史和官方远程地址的 DeepSeek Harness 源码。

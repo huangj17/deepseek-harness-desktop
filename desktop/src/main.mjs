@@ -20,7 +20,7 @@ import {
   readSkippedDesktopVersion,
   skipDesktopVersion,
 } from './desktop-updater.mjs'
-import { harnessWebArguments } from './harness-launch.mjs'
+import { createHarnessReadyUrlReader, harnessWebArguments } from './harness-launch.mjs'
 import { hideMainWindowOnClose, revealMainWindow } from './window-lifecycle.mjs'
 import { installDesktopIntegration } from './desktop-integration.mjs'
 import { OPEN_DSH_TERMINAL_CHANNEL, openDshTerminal } from './dsh-terminal.mjs'
@@ -29,7 +29,6 @@ const require = createRequire(import.meta.url)
 const LEGACY_USER_DATA_DIRECTORY = 'DeepSeek Harness Desktop'
 const dshPackagePath = require.resolve('@deepseek-ai/dsh/package.json')
 const npmPackagePath = require.resolve('npm/package.json')
-const READY_PATTERN = /dsh web:\s+(http:\/\/127\.0\.0\.1:\d+)/
 const STARTUP_TIMEOUT_MS = 120_000
 const SHUTDOWN_TIMEOUT_MS = 8_000
 const UPDATE_CHECK_DELAY_MS = 15_000
@@ -406,6 +405,7 @@ function startHarness(runtime) {
     let settled = false
     let ready = false
     let output = ''
+    const readReadyUrl = createHarnessReadyUrlReader()
 
     const finish = (callback, value) => {
       if (settled) return
@@ -418,11 +418,11 @@ function startHarness(runtime) {
       const text = chunk.toString()
       output = `${output}${text}`.slice(-40_000)
       void appendLog(`[${new Date().toISOString()}] ${source}: ${text}`)
-      const match = output.match(READY_PATTERN)
-      if (match?.[1] !== undefined) {
+      const url = readReadyUrl(source, chunk)
+      if (url !== undefined) {
         ready = true
         runningHarnessRuntime = runtime
-        finish(resolve, match[1])
+        finish(resolve, url)
       }
     }
 
