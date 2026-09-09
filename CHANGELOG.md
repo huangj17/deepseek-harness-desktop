@@ -4,6 +4,12 @@
 
 This file records what changed in each desktop client release. The release workflow reads the section matching the tag from this file and from [CHANGELOG.zh-CN.md](CHANGELOG.zh-CN.md), so add a section to both before tagging a release.
 
+## 0.2.12
+
+- Fixed: after updating Harness to `0.1.2-rc.1`, the desktop window could show `dsh web authentication required` instead of the Web UI. The launcher now preserves the full startup URL, including its authentication token.
+- Improved: startup waits for the complete URL line and handles stdout and stderr independently, preventing a split log chunk from truncating the port or token.
+- Compatibility: existing bundled runtimes without token authentication continue to launch normally.
+
 ## 0.2.11
 
 - Added: **Open DSH Terminal** at the bottom of the sidebar opens the system terminal in the current Session or recent Workspace. The `dsh` command uses the same active bundled or downloaded runtime and Harness home as the desktop client, with no global installation required.

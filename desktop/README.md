@@ -54,7 +54,7 @@ npm run dist:linux
 
 ## 版本
 
-- Desktop wrapper: 0.2.11
+- Desktop wrapper: 0.2.12
 - DeepSeek Harness: 0.1.0-rc.6
 - Electron: 43.4.0
 
